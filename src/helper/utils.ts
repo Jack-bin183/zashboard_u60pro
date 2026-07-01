@@ -17,8 +17,20 @@ export const prettyBytesHelper = (bytes: number, opts?: Options) => {
   })
 }
 
+// export const fromNow = (timestamp: string | number) => {
+//   return dayjs(timestamp).fromNow()
+// }
+export const fixWrongLocalTime = (timestamp: string | number) => {
+  if (typeof timestamp !== 'string') return timestamp
+
+  return timestamp.replace(
+    /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)Z$/,
+    '$1',
+  )
+}
+
 export const fromNow = (timestamp: string | number) => {
-  return dayjs(timestamp).fromNow()
+  return dayjs(fixWrongLocalTime(timestamp)).fromNow()
 }
 
 export const getDashboardSettingsFromStorage = () => {

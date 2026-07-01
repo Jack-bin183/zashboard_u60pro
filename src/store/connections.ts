@@ -20,6 +20,7 @@ import { toSearchRegex } from '@/helper/search'
 import type { Connection } from '@/types'
 import { useStorage, watchOnce } from '@vueuse/core'
 import dayjs from 'dayjs'
+import { fixWrongLocalTime } from '@/helper/utils'
 import { computed, ref, watch } from 'vue'
 import { initAggregatedDataMap, saveConnectionHistory } from './connHistory'
 import {
@@ -89,7 +90,8 @@ export const initConnections = () => {
         .filter((conn) => getConnectionNetwork(conn) !== 'tcp')
         .forEach((conn) => {
           const now = dayjs()
-          const start = dayjs(getConnectionStart(conn))
+          // const start = dayjs(getConnectionStart(conn))
+          const start = dayjs(fixWrongLocalTime(getConnectionStart(conn)))
 
           if (now.diff(start, 'minute') > autoDisconnectIdleUDPTime.value) {
             disconnectByIdAPI(conn.id)
@@ -137,7 +139,11 @@ const sortFunctionMap: Record<SORT_TYPE, (a: Connection, b: Connection) => numbe
     return getNetworkTypeFromConnection(a).localeCompare(getNetworkTypeFromConnection(b))
   },
   [SORT_TYPE.CONNECT_TIME]: (a: Connection, b: Connection) => {
-    return dayjs(getConnectionStart(a)).valueOf() - dayjs(getConnectionStart(b)).valueOf()
+    // return dayjs(getConnectionStart(a)).valueOf() - dayjs(getConnectionStart(b)).valueOf()
+    return (
+      dayjs(fixWrongLocalTime(getConnectionStart(a))).valueOf() -
+      dayjs(fixWrongLocalTime(getConnectionStart(b))).valueOf()
+    )
   },
   [SORT_TYPE.INBOUND_USER]: (a: Connection, b: Connection) => {
     return getInboundUserFromConnection(a).localeCompare(getInboundUserFromConnection(b))
